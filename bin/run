@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+
+require_relative '../../lib/game'
+
+grid = Game.new(10, 2)
+grid.push('red', 1) || fail
+grid.push('blue', 1) || fail
+grid.push('red', 1) || fail
+grid.push('blue', 1) || fail
+grid
+
+puts 'done'
+
