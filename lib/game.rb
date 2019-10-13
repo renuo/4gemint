@@ -3,9 +3,13 @@ require_relative 'grid'
 class Game
   attr_accessor :grid
 
-  def initialize(scoring_line_legnth = 4)
-    @scoring_line_length = scoring_line_legnth
-    @grid = Grid.new(10, 10)
+  def initialize(width:, height:, scoring_line_length: 4)
+    @scoring_line_length = scoring_line_length
+    @grid = Grid.new(width, height)
+  end
+
+  def submit(turn)
+    @grid.push(turn.token, turn.position) || raise('column full')
   end
 
   def scoring_line_presences
@@ -23,18 +27,14 @@ class Game
   end
 
   def scoring_downward_diag_presences
-    columns = @grid.columns
-
-    pad = [*0..(columns.length - 1)].map { |i| [nil] * i }
-    padded = pad.reverse.zip(columns).zip(pad).map(&:flatten)
+    padding = [*0..(@grid.columns.length - 1)].map { |i| [nil] * i }
+    padded = padding.reverse.zip(@grid.columns).zip(padding).map(&:flatten)
     padded.transpose.map(&:compact).flat_map { |diag| extract_scoring_lines(diag) }
   end
 
   def scoring_upward_diag_presences
-    columns = @grid.columns
-
-    pad = [*0..(columns.length - 1)].map { |i| [nil] * i }
-    padded = pad.zip(columns).zip(pad.reverse).map(&:flatten)
+    padding = [*0..(@grid.columns.length - 1)].map { |i| [nil] * i }
+    padded = padding.zip(@grid.columns).zip(padding.reverse).map(&:flatten)
     padded.transpose.map(&:compact).flat_map { |diag| extract_scoring_lines(diag) }
   end
 

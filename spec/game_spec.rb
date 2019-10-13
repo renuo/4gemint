@@ -9,19 +9,20 @@ def push_string(grid, lines)
 end
 
 RSpec.describe Game do
-  let(:game) { described_class.new(4) }
 
   describe "#new" do
     it "initializes" do
-      described_class.new
+      described_class.new(width: 10, height: 10)
     end
 
     it "initializes with optional winning line length" do
-      described_class.new(5)
+      described_class.new(width: 10, height: 10, scoring_line_length: 5)
     end
   end
 
   describe "#scoring_line_presences" do
+    let(:game) { described_class.new(width: 10, height: 10) }
+
     subject { game.scoring_line_presences }
 
     before do
