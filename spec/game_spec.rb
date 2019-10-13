@@ -9,6 +9,7 @@ def push_string(grid, lines)
 end
 
 RSpec.describe Game do
+  let(:game) { described_class.new(width: 10, height: 10) }
 
   describe "#new" do
     it "initializes" do
@@ -20,13 +21,23 @@ RSpec.describe Game do
     end
   end
 
-  describe "#scoring_line_presences" do
-    let(:game) { described_class.new(width: 10, height: 10) }
+  describe "#submit" do
+    let(:turn) { Turn.new(token: 'x', position: 2) }
 
+    it "adds the token to the grid" do
+      expect { game.submit(turn) }.to change { game.grid.to_a[2][0] }.from(nil).to('x')
+    end
+
+    it "raises if grid doesn't take any more turns" do
+      expect { 100.times { game.submit(turn) } }.to raise_exception('column full')
+    end
+  end
+
+  describe "#scoring_line_presences" do
     subject { game.scoring_line_presences }
 
     before do
-      push_string game.grid, grid_input
+      push_string(game.grid, grid_input)
     end
 
     context "when grid is empty" do
