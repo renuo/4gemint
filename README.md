@@ -4,14 +4,14 @@ Play connect-four on the blockchain.
 
 ## Setup
 
-  bundle install
-  bin/check
+    bundle install
+    bin/check
 
 ## Run
 
 Run the project like this
 
-  bin/run
+    bin/run
   
 and get this wonderful game state thrown at your terminal
 
