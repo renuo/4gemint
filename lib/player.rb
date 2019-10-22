@@ -1,4 +1,4 @@
-require 'digest/sha2'
+require "digest/sha2"
 require_relative "turn"
 
 class Player
@@ -6,7 +6,7 @@ class Player
 
   def initialize
     # TODO: You better can prove ownership of your playing tokens
-    @token = Digest::SHA256.hexdigest('x')
+    @token = Digest::SHA256.hexdigest("X")
   end
 
   def produce_turn(game)

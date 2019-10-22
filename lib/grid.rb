@@ -22,6 +22,21 @@ class Grid
     @columns
   end
 
+  def to_colorful_string(highlighted_character = "")
+    @columns.transpose.map { |row|
+      row.map { |token|
+        token_display = token ? "◉ " : "  "
+
+        if token && defined? Paint
+          token_display = Paint[token_display, Digest::SHA2.hexdigest(token)[0..5]]
+          token_display = Paint[token_display, :bright, :underline] if token == highlighted_character
+        end
+
+        token_display
+      }.join("")
+    }.join("\n")
+  end
+
   private
 
   def column_full?(column)
@@ -32,4 +47,3 @@ class Grid
     @columns[column].index(&:nil?)
   end
 end
-

@@ -1,44 +1,63 @@
 #!/usr/bin/env ruby
+# $DEBUG = true
 
-require "bundler"
-Bundler.setup(:default)
-
-require"lapidar"
+require "paint"
+require "lapidar"
 require_relative "../lib/game"
 require_relative "../lib/player"
 require_relative "../lib/turn"
+require_relative "../lib/tools"
 
 Thread.abort_on_exception = true
 
-puts "Starting game…"
+# Setup latest game and retrieve the relevant turns from the blockchain starting from an offset
+def load_last_game_from_blocks(main_chain_blocks)
+  turns_per_game = 50 * 50
+  last_game_offset = turns_per_game * (main_chain_blocks.size / turns_per_game)
+  blocks_of_last_game = main_chain_blocks[last_game_offset..-1].clone
 
+  # Replay all blocks of the last game
+  last_game = Game.new(width: 50, height: 50)
+  blocks_of_last_game.each { |block| last_game.submit(Turn.from_str(block.data)) }
+  last_game
+end
+
+puts "Starting Lapidar blockchain runner…"
 lapidar = Lapidar.runner(port: 9999, neighbors: [
-  { host: "localhost", port: 9998 }
+  { host: "127.0.0.1", port: 9998 }
 ])
-
 blockchain_thread = Thread.new { lapidar.start }
+
+# Log game to console every second
+logger_thread = periodically_sleeping_thread(1) do
+  system("clear")
+  current_game = load_last_game_from_blocks(lapidar.chain.blocks)
+  puts current_game.grid.to_colorful_string
+end
+
+# Inquire all neighbors for blockchain blocks every 10 seconds
+inquiry_thread = periodically_sleeping_thread(10) { lapidar.buschtelefon_endpoint.inquire_remote_neighbors }
+
+trap "SIGINT" do
+  puts "Shutting down…"
+  inquiry_thread.exit
+  lapidar.stop
+  logger_thread.exit
+end
 
 my_player = Player.new
 
 loop do
-  all_preferred_blocks = lapidar.chain.blocks
-
-  # Setup latest game and retrieve the blocks relevant for it with an offset
-  turns_per_game = 50 * 50
-  last_game_offset = - (all_preferred_blocks.length % turns_per_game)
-  blocks_of_last_game = lapidar.chain.blocks[last_game_offset..-1].clone
-  last_game = Game.new(width: 50, height: 50)
-
-  # Replay all blocks of the last game
-  blocks_of_last_game.each do |block|
-    last_game.submit(Turn.from_str(block.data))
-  end
+  # From a series of games take the latest/currently played one
+  current_game = load_last_game_from_blocks(lapidar.chain.blocks)
 
   # Come up with a new turn to play
-  my_turn = my_player.produce_turn(last_game)
+  my_turn = my_player.produce_turn(current_game)
 
   # Submit my turn to the miner and the blockchain
   lapidar.punch_queue << my_turn.to_s
 end
 
+inquiry_thread.join
 blockchain_thread.join
+logger_thread.join

@@ -1,7 +1,7 @@
 require_relative "../lib/game"
 
 def push_string(grid, lines)
-  lines.each_line.map(&:chomp).reverse.each do |line|
+  lines.each_line.map(&:chomp).reverse_each do |line|
     line.each_char.with_index do |character, col_index|
       grid.push(character, col_index)
     end
@@ -22,14 +22,14 @@ RSpec.describe Game do
   end
 
   describe "#submit" do
-    let(:turn) { Turn.new(token: 'x', position: 2) }
+    let(:turn) { Turn.new(token: "x", position: 2) }
 
     it "adds the token to the grid" do
-      expect { game.submit(turn) }.to change { game.grid.to_a[2][0] }.from(nil).to('x')
+      expect { game.submit(turn) }.to change { game.grid.to_a[2][0] }.from(nil).to("x")
     end
 
     it "raises if grid doesn't take any more turns" do
-      expect { 100.times { game.submit(turn) } }.to raise_exception('column full')
+      expect { 100.times { game.submit(turn) } }.to raise_exception("column full")
     end
   end
 
@@ -41,7 +41,7 @@ RSpec.describe Game do
     end
 
     context "when grid is empty" do
-      let(:grid_input) { '' }
+      let(:grid_input) { "" }
 
       it { is_expected.to be_empty }
     end
@@ -138,7 +138,6 @@ RSpec.describe Game do
 
       it { is_expected.to have_attributes(count: 2) }
     end
-
 
     context "when there's a downward diagonal" do
       let(:grid_input) do

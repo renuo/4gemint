@@ -1,4 +1,4 @@
-require_relative 'grid'
+require_relative "grid"
 
 class Game
   attr_accessor :grid
@@ -9,9 +9,13 @@ class Game
   end
 
   def submit(turn)
-    @grid.push(turn.token, turn.position) || raise('column full')
+    @grid.push(turn.token, turn.position) || raise("column full")
   end
 
+  # Returns the scoring lines in the following format:
+  # [[token, start_index, length]]
+  # The start_index is relative to the matched row, column or diag, so not of much use
+  # Attention: Long lines still only count as one
   def scoring_line_presences
     scoring_row_presences + scoring_column_presences + scoring_downward_diag_presences + scoring_upward_diag_presences
   end
@@ -40,8 +44,8 @@ class Game
 
   def extract_scoring_lines(line)
     line.each_with_index
-      .chunk { |(x, _i)| x }
-      .map { |(sample, matches)| [sample, matches[0][-1], matches.length] }
+      .chunk { |(token, _index)| token }
+      .map { |(token, matches_with_index)| [token, matches_with_index[0][-1], matches_with_index.length] }
       .select { |c| c.last >= @scoring_line_length }
   end
 end
