@@ -23,7 +23,7 @@ def load_last_game_from_blocks(main_chain_blocks)
 end
 
 puts "Starting Lapidar blockchain runner…"
-lapidar = Lapidar.runner(port: 9999, neighbors: [
+lapidar = Lapidar.runner(host: '0.0.0.0', port: 9999, neighbors: [
   { host: "127.0.0.1", port: 9998 }
 ])
 blockchain_thread = Thread.new { lapidar.start }

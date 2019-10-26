@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 ruby File.read(".ruby-version")
 
-gem "lapidar", ">= 0.3"
+gem "lapidar", "~> 0.4.0"
 gem "paint"
 gem "byebug"
 
