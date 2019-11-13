@@ -18,7 +18,12 @@ def load_last_game_from_blocks(main_chain_blocks)
 
   # Replay all blocks of the last game
   last_game = Game.new(width: 50, height: 50)
-  blocks_of_last_game.each { |block| last_game.submit(Turn.from_str(block.data)) }
+  blocks_of_last_game.each do |block|
+    last_game.submit(Turn.from_str(block.data))
+  rescue StandardError => e
+    # Invalid turns are just swallowed but they'll still be considered valid blocks in the chain.
+    puts e.message
+  end
   last_game
 end
 
