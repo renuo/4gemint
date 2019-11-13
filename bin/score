@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+# $DEBUG = true
+
+require "paint"
+require "lapidar"
+require_relative "../lib/game"
+require_relative "../lib/player"
+require_relative "../lib/turn"
+require_relative "../lib/tools"
+
+scores_per_game = []
+
+chain = Persistence.load_chain("9999.json")
+main_chain_blocks = chain.blocks
+
+turns_per_game = 50 * 50
+main_chain_blocks.each_slice(turns_per_game) do |blocks_of_game|
+  game = Game.new(width: 50, height: 50)
+
+  blocks_of_game.each do |block|
+    game.submit(Turn.from_str(block.data))
+  rescue StandardError => e
+    # Invalid turns are just swallowed but they'll still be considered valid blocks in the chain.
+    puts e.message
+  end
+
+  game_score = game.scoring_line_presences
+  scores_per_game.push(game_score)
+end
+
+puts scores_per_game
