@@ -1,16 +1,15 @@
 #!/usr/bin/env ruby
 # $DEBUG = true
 
+require "byebug"
 require "paint"
 require "lapidar"
 require_relative "../lib/game"
-require_relative "../lib/player"
 require_relative "../lib/turn"
-require_relative "../lib/tools"
 
 scores_per_game = []
 
-chain = Persistence.load_chain("9999.json")
+chain = Lapidar::Persistence.load_chain("9999.json")
 main_chain_blocks = chain.blocks
 
 turns_per_game = 50 * 50
@@ -24,8 +23,18 @@ main_chain_blocks.each_slice(turns_per_game) do |blocks_of_game|
     puts e.message
   end
 
-  game_score = game.scoring_line_presences
-  scores_per_game.push(game_score)
+  game_scores = game.scoring_line_presences.group_by(&:first).transform_values(&:count)
+  scores_per_game.push(game_scores)
 end
 
-puts scores_per_game
+all_occurring_tokens = scores_per_game.map(&:keys).flatten.uniq
+
+require 'csv'
+system 'mkdir -p ./stats'
+
+CSV.open("stats/scores.csv", "w") do |csv|
+  csv << ['game_number'] + all_occurring_tokens # header
+  scores_per_game.each_with_index do |game_scores, game_number|
+    csv << [game_number] + all_occurring_tokens.map { |t| game_scores[t] || 0 }
+  end
+end

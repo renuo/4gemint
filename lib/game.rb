@@ -14,7 +14,7 @@ class Game
 
   # Returns the scoring lines in the following format:
   # [[token, start_index, length]]
-  # The start_index is relative to the matched row, column or diag, so not of much use
+  # The start_index is relative to the matched row, column or diag (NOT VERY USEFUL!)
   # Attention: Long lines still only count as one
   def scoring_line_presences
     scoring_row_presences + scoring_column_presences + scoring_downward_diag_presences + scoring_upward_diag_presences

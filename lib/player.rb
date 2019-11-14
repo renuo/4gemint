@@ -6,7 +6,7 @@ class Player
 
   def initialize
     # TODO: You better can prove ownership of your playing tokens
-    @token = Digest::SHA256.hexdigest("X")
+    @token = Digest::SHA256.hexdigest("H")
   end
 
   def produce_turn(game)
